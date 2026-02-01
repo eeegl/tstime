@@ -1,14 +1,20 @@
 {
   "name": "tstime",
   "version": "1.0.0",
-  "description": "Simple ISO 8601 datetime string in basic and extended format.",
+  "description": "Simple ISO 8601 strings in basic and extended format.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "ISO 8601",
+    "date",
+    "time",
+    "datetime",
+    "strings"
+  ],
+  "author": "Örn Segerstedt",
+  "license": "MIT",
   "type": "module",
   "devDependencies": {
     "@types/node": "^25.1.0",

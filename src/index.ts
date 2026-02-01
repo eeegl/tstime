@@ -1,5 +1,7 @@
 /**
  * This module defines functions for generating ISO 8601 strings.
+ *
+ * @author Örn Segerstedt
  */
 
 export type {
