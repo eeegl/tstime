@@ -1,149 +1,242 @@
-import type { IsoUtcDatetime } from "./types.js";
-
-import type { IsoUtcDatetimeExtended, IsoUtcDatetimeBasic } from "./types.js";
-
-/**
- * Narrows the string.
- *
- * @param s The string to validate.
- * @returns True if the string is in the ISO 8601 extended format, otherwise false.
- */
-export const isExtended = (s: string): s is IsoUtcDatetimeExtended =>
-  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/.test(s);
-
-/**
- * Narrows the string.
- *
- * @param s The string to validate.
- * @returns True if the string is in the ISO 8601 basic format, otherwise false.
- */
-export const isBasic = (s: string): s is IsoUtcDatetimeBasic =>
-  /\d{8}T\d{6}Z/.test(s);
+import type {
+  IsoDatetimeUtcBasic,
+  IsoDateUtcBasic,
+  IsoDateUtc,
+  IsoDateUtcExtended,
+  IsoUtc,
+  IsoTimeUtcBasic,
+  IsoTimeUtcBasicMs,
+  IsoTimeUtcExtended,
+  IsoTimeUtcExtendedMs,
+  IsoDatetimeUtcBasicMs,
+  IsoDatetimeUtcExtended,
+  IsoDatetimeUtcExtendedMs,
+  IsoTimeUtc,
+  IsoDatetimeUtc,
+} from "./types.js";
 
 /**
- * Creates a new ISO 8601 string in the _extended_ format.
+ * Generates a ISO 8601 date string.
  *
- * If no date is provided, the current time is used.
+ * The defaults uses the current time (a new {@link Date}), and the ISO 8601
+ * extended format (`params.date` set to `false`).
  *
- * @param date An optional date
- * @returns The date as an ISO 8601 string in extended format
+ * @param params Enables customize date and ISO 8601 basic format
+ * @returns An date string in extended or basic format
  */
-export const newDatetimeUtcIsoExtended = (
-  date: Date = new Date(),
-): IsoUtcDatetimeExtended =>
-  // "The toISOString() method of Date instances returns a string representing
-  // this date in the date time string format, a simplified format based on ISO
-  // 8601, which is always 24 or 27 characters long (YYYY-MM-DDTHH:mm:ss.sssZ or
-  // ±YYYYYY-MM-DDTHH:mm:ss.sssZ, respectively). The timezone is always UTC, as
-  // denoted by the suffix Z."
-  //
-  // For more info:
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
-  date.toISOString().replace(/\.\d{3}/, "") as IsoUtcDatetimeExtended;
-
-/**
- * Creates a new ISO 8601 string in the _basic_ format.
- *
- * If no date is provided, the current time is used.
- *
- * @param date An optional date
- * @returns The date as an ISO 8601 string in basic format
- */
-export const newDatetimeUtcIsoBasic = (
-  date: Date = new Date(),
-): IsoUtcDatetimeBasic => extendedToBasic(newDatetimeUtcIsoExtended(date));
-
-/**
- * Converts from basic to extended format.
- *
- * @param basic The basic string to convert
- * @returns An ISO 8601 string in extended format
- */
-export const basicToExtended = (
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
-  basic: IsoUtcDatetimeBasic,
-): IsoUtcDatetimeExtended =>
-  basicToExtendedUnsafe(basic) as IsoUtcDatetimeExtended;
-
-/**
- * Convenience alias for {@link basicToExtended}.
- */
-export const bte = basicToExtended;
-
-/**
- * Converts from extended to basic format.
- *
- * @param extended The extended string to convert
- * @returns An ISO 8601 string in basic format
- */
-export const extendedToBasic = (
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
-  extended: IsoUtcDatetimeExtended,
-): IsoUtcDatetimeBasic =>
-  extendedToBasicUnsafe(extended) as IsoUtcDatetimeBasic;
-
-/**
- * Convenience alias for {@link extendedToBasic}.
- */
-export const etb = extendedToBasic;
-
-/**
- * Converts a new ISO 8601 string as an untyped string.
- *
- * NOTE: this function only performs simple regex substitution. It does not
- * validate either input or output.
- *
- * @param s The string to convert
- * @returns The date as an ISO 8601 string in basic format
- */
-export const extendedToBasicUnsafe = (s: string): string =>
-  s.replaceAll(/[-:]/, "");
-
-/**
- * Converts a new ISO 8601 string as an untyped string.
- *
- * NOTE: this function only performs simple regex substitution. It does not
- * validate either input or output.
- *
- * @param s The string to convert
- * @returns The date as an ISO 8601 string in basic format
- */
-export const basicToExtendedUnsafe = (s: string): string =>
-  [
-    year(s as IsoUtcDatetimeBasic),
-    "-",
-    month(s as IsoUtcDatetimeBasic),
-    "-",
-    day(s as IsoUtcDatetimeBasic),
-    "T",
-    hour(s as IsoUtcDatetimeBasic),
-    ":",
-    minute(s as IsoUtcDatetimeBasic),
-    ":",
-    second(s as IsoUtcDatetimeBasic),
-  ].join("");
-
-export const newDatetime = (
+export const newIsoDateUtc = (
   params: { date: Date; basic: boolean } = { date: new Date(), basic: false },
-): string =>
-  params.basic
-    ? newDatetimeUtcIsoBasic(params.date)
-    : newDatetimeUtcIsoExtended(params.date);
+): string => {
+  return params.basic
+    ? [
+        params.date.getUTCFullYear().toString().padStart(4, "0"),
+        params.date.getUTCMonth().toString().padStart(2, "0"),
+        params.date.getUTCDate().toString().padStart(2, "0"),
+      ].join("")
+    : [
+        params.date.getUTCFullYear().toString().padStart(4, "0"),
+        "-",
+        params.date.getUTCMonth().toString().padStart(2, "0"),
+        "-",
+        params.date.getUTCDate().toString().padStart(2, "0"),
+      ].join("");
+};
 
-export const year = (s: IsoUtcDatetime): string =>
-  extendedToBasicUnsafe(s).substring(0, 4);
+/**
+ * Generates a ISO 8601 time string.
+ *
+ * The defaults uses the current time (a new {@link Date}), and the ISO 8601
+ * extended format (`params.date` set to `false`).
+ *
+ * @param params Enables customize date and ISO 8601 basic format
+ * @returns An time string in extended or basic format
+ */
+export const newIsoTimeUtc = (
+  params: { date: Date; basic: boolean; ms: boolean } = {
+    date: new Date(),
+    basic: false,
+    ms: true,
+  },
+): string => {
+  const withoutMs = params.basic
+    ? [
+        params.date.getUTCHours().toString().padStart(4, "0"),
+        params.date.getUTCMinutes().toString().padStart(2, "0"),
+        params.date.getUTCSeconds().toString().padStart(2, "0"),
+      ].join("")
+    : [
+        params.date.getUTCHours().toString().padStart(4, "0"),
+        "-",
+        params.date.getUTCMinutes().toString().padStart(2, "0"),
+        "-",
+        params.date.getUTCSeconds().toString().padStart(2, "0"),
+      ].join("");
 
-export const month = (s: IsoUtcDatetime): string =>
-  extendedToBasicUnsafe(s).substring(4, 6);
+  const withMs =
+    withoutMs + "." + params.date.getMilliseconds().toString().padStart(3, "0");
 
-export const day = (s: IsoUtcDatetime): string =>
-  extendedToBasicUnsafe(s).substring(6, 8);
+  return params.ms ? withMs : withoutMs;
+};
 
-export const hour = (s: IsoUtcDatetime): string =>
-  extendedToBasicUnsafe(s).substring(8, 10);
+/**
+ * Generates a ISO 8601 datetime string.
+ *
+ * The defaults uses the current time (a new {@link Date}), and the ISO 8601
+ * extended format (`params.date` set to `false`).
+ *
+ * @param params Enables customize date and ISO 8601 basic format
+ * @returns An datetime string in extended or basic format
+ */
+export const newIsoDatetimeUtc = (
+  params: { date: Date; basic: boolean; ms: boolean } = {
+    date: new Date(),
+    basic: false,
+    ms: true,
+  },
+): string => {
+  return newIsoDateUtc(params) + "T" + newIsoTimeUtc(params) + "Z";
+};
 
-export const minute = (s: IsoUtcDatetime): string =>
-  extendedToBasicUnsafe(s).substring(10, 12);
+/**
+ * Generates an object containing variations of ISO 8601 time/date/datetime
+ * strings, as well as number types for year, month, date, hour, minute,
+ * seconds, and milliseconds.
+ *
+ * The defaults uses the current time (a new {@link Date}).
+ */
+export const newIsoUtc = (date: Date = new Date()): IsoUtc => ({
+  year: date.getUTCFullYear(),
+  month: date.getUTCMonth(),
+  day: date.getUTCDate(),
+  hour: date.getUTCHours(),
+  minute: date.getUTCMinutes(),
+  second: date.getUTCSeconds(),
+  ms: date.getUTCMilliseconds(),
+  dateBasic: newIsoDateUtc({ date, basic: true }) as IsoDateUtcBasic,
+  dateExtended: newIsoDateUtc({ date, basic: false }) as IsoDateUtcExtended,
+  timeBasic: newIsoTimeUtc({ date, basic: true, ms: false }) as IsoTimeUtcBasic,
+  timeBasicMs: newIsoTimeUtc({
+    date,
+    basic: true,
+    ms: true,
+  }) as IsoTimeUtcBasicMs,
+  timeExtended: newIsoTimeUtc({
+    date,
+    basic: false,
+    ms: false,
+  }) as IsoTimeUtcExtended,
+  timeExtendedMs: newIsoTimeUtc({
+    date,
+    basic: false,
+    ms: true,
+  }) as IsoTimeUtcExtendedMs,
+  datetimeBasic: newIsoDatetimeUtc({
+    date,
+    basic: true,
+    ms: false,
+  }) as IsoDatetimeUtcBasic,
+  datetimeBasicMs: newIsoDatetimeUtc({
+    date,
+    basic: true,
+    ms: false,
+  }) as IsoDatetimeUtcBasicMs,
+  datetimeExtended: newIsoDatetimeUtc({
+    date,
+    basic: false,
+    ms: false,
+  }) as IsoDatetimeUtcExtended,
+  datetimeExtendedMs: newIsoDatetimeUtc({
+    date,
+    basic: false,
+    ms: true,
+  }) as IsoDatetimeUtcExtendedMs,
+});
 
-export const second = (s: IsoUtcDatetime): string =>
-  extendedToBasicUnsafe(s).substring(12, 14);
+/**
+ * Type guard.
+ */
+export const isIsoDateUtc = (s: string): s is IsoDateUtc =>
+  isIsoDateUtcExtended(s) || isIsoDateUtcBasic(s);
+
+/**
+ * Type guard.
+ */
+export const isIsoDateUtcBasic = (s: string): s is IsoDateUtcBasic =>
+  /^\d{8}$/.test(s);
+
+/**
+ * Type guard.
+ */
+export const isIsoDateUtcExtended = (s: string): s is IsoDateUtc =>
+  /^\d{4}-\d{2}-\d{2}$/.test(s);
+
+/**
+ * Type guard.
+ */
+export const isIsoTimeUtc = (s: string): s is IsoTimeUtc =>
+  isIsoTimeUtcBasic(s) ||
+  isIsoTimeUtcBasicMs(s) ||
+  isIsoTimeUtcExtended(s) ||
+  isIsoTimeUtcExtendedMs(s);
+
+/**
+ * Type guard.
+ */
+export const isIsoTimeUtcBasic = (s: string): s is IsoTimeUtcBasic =>
+  /^\d{6}$/.test(s);
+
+/**
+ * Type guard.
+ */
+export const isIsoTimeUtcBasicMs = (s: string): s is IsoTimeUtcBasicMs =>
+  /^\d{6}.\d{3}$/.test(s);
+
+/**
+ * Type guard.
+ */
+export const isIsoTimeUtcExtended = (s: string): s is IsoTimeUtcExtended =>
+  /^\d{2}:\d{2}:\d{2}$/.test(s);
+
+/**
+ * Type guard.
+ */
+export const isIsoTimeUtcExtendedMs = (s: string): s is IsoTimeUtcExtendedMs =>
+  /^\d{2}:\d{2}:\d{2}.\d{3}$/.test(s);
+
+/**
+ * Type guard.
+ */
+export const isIsoDatetimeUtc = (s: string): s is IsoDatetimeUtc =>
+  isIsoDatetimeUtcBasic(s) ||
+  isIsoDatetimeUtcBasicMs(s) ||
+  isIsoDatetimeUtcExtended(s) ||
+  isIsoDatetimeUtcExtendedMs(s);
+
+/**
+ * Type guard.
+ */
+export const isIsoDatetimeUtcBasic = (s: string): s is IsoDatetimeUtcBasic =>
+  /^\d{8}T\d{6}Z$/.test(s);
+
+/**
+ * Type guard.
+ */
+export const isIsoDatetimeUtcBasicMs = (
+  s: string,
+): s is IsoDatetimeUtcBasicMs => /^\d{8}T\d{6}.\d{3}Z$/.test(s);
+
+/**
+ * Type guard.
+ */
+export const isIsoDatetimeUtcExtended = (
+  s: string,
+): s is IsoDatetimeUtcExtended =>
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(s);
+
+/**
+ * Type guard.
+ */
+export const isIsoDatetimeUtcExtendedMs = (
+  s: string,
+): s is IsoDatetimeUtcExtended =>
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(s);
