@@ -30,7 +30,8 @@ export const newIsoDateUtc = (
   return params.basic
     ? [
         params.date.getUTCFullYear().toString().padStart(4, "0"),
-        params.date.getUTCMonth().toString().padStart(2, "0"),
+        // +1 since getUTCMonth is zero-based
+        (params.date.getUTCMonth() + 1).toString().padStart(2, "0"),
         params.date.getUTCDate().toString().padStart(2, "0"),
       ].join("")
     : [
@@ -60,20 +61,28 @@ export const newIsoTimeUtc = (
 ): string => {
   const withoutMs = params.basic
     ? [
-        params.date.getUTCHours().toString().padStart(4, "0"),
+        params.date.getUTCHours().toString().padStart(2, "0"),
         params.date.getUTCMinutes().toString().padStart(2, "0"),
         params.date.getUTCSeconds().toString().padStart(2, "0"),
       ].join("")
     : [
-        params.date.getUTCHours().toString().padStart(4, "0"),
-        "-",
+        params.date.getUTCHours().toString().padStart(2, "0"),
+        ":",
         params.date.getUTCMinutes().toString().padStart(2, "0"),
-        "-",
+        ":",
         params.date.getUTCSeconds().toString().padStart(2, "0"),
       ].join("");
 
-  const withMs =
-    withoutMs + "." + params.date.getMilliseconds().toString().padStart(3, "0");
+  const withMs = params.basic
+    ? [
+        withoutMs,
+        params.date.getMilliseconds().toString().padStart(3, "0"),
+      ].join("")
+    : [
+        withoutMs,
+        ".",
+        params.date.getMilliseconds().toString().padStart(3, "0"),
+      ].join("");
 
   return params.ms ? withMs : withoutMs;
 };
@@ -106,7 +115,7 @@ export const newIsoDatetimeUtc = (
  */
 export const newIsoUtc = (date: Date = new Date()): IsoUtc => ({
   year: date.getUTCFullYear(),
-  month: date.getUTCMonth(),
+  month: date.getUTCMonth() + 1, // Since getUTCMonth is zero based 0-11
   day: date.getUTCDate(),
   hour: date.getUTCHours(),
   minute: date.getUTCMinutes(),

@@ -2,9 +2,10 @@
   "name": "@eeegl/tstime",
   "version": "1.0.0",
   "description": "Simple ISO 8601 strings in basic and extended format.",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "keywords": [
     "ISO 8601",
@@ -17,7 +18,11 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
+    "@jest/globals": "^30.2.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^25.1.0",
-    "jest": "^30.2.0"
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
+    "typescript": "^5.9.3"
   }
 }
