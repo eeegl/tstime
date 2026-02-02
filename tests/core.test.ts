@@ -21,7 +21,7 @@ describe("newIsoUtc", () => {
     const isoUtc = newIsoUtc(date);
 
     expect(isoUtc.year).toEqual(date.getUTCFullYear());
-    // -1 since Date.getUTCMonth zero-based values 0-11
+    // -1 since Date.getUTCMonth returns zero-based values 0-11
     expect(isoUtc.month - 1).toEqual(date.getUTCMonth());
     expect(isoUtc.day).toEqual(date.getUTCDate());
 
@@ -36,7 +36,16 @@ describe("newIsoUtc", () => {
 
     expect(isoUtc.dateBasic).toMatch(/^\d{8}$/);
     expect(isoUtc.timeBasic).toMatch(/^\d{6}$/);
-    expect(isoUtc.timeBasicMs).toMatch(/^\d{9}$/);
+    expect(isoUtc.timeBasicMs).toMatch(/^\d{6}.\d{3}$/);
+
+    expect(isoUtc.datetimeBasic).toMatch(/^\d{8}T\d{6}Z$/);
+    expect(isoUtc.datetimeBasicMs).toMatch(/^\d{8}T\d{6}.\d{3}Z$/);
+    expect(isoUtc.datetimeExtended).toMatch(
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/,
+    );
+    expect(isoUtc.datetimeExtendedMs).toMatch(
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/,
+    );
 
     expect(isIsoDateUtc("19940426")).toBe(true);
     expect(isIsoDateUtc("1994-04-26")).toBe(true);

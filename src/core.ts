@@ -59,7 +59,7 @@ export const newIsoTimeUtc = (
     ms: true,
   },
 ): string => {
-  const withoutMs = params.basic
+  const time = params.basic
     ? [
         params.date.getUTCHours().toString().padStart(2, "0"),
         params.date.getUTCMinutes().toString().padStart(2, "0"),
@@ -73,18 +73,12 @@ export const newIsoTimeUtc = (
         params.date.getUTCSeconds().toString().padStart(2, "0"),
       ].join("");
 
-  const withMs = params.basic
-    ? [
-        withoutMs,
-        params.date.getMilliseconds().toString().padStart(3, "0"),
-      ].join("")
-    : [
-        withoutMs,
-        ".",
-        params.date.getMilliseconds().toString().padStart(3, "0"),
-      ].join("");
+  const msSuffix = [
+    ".",
+    params.date.getMilliseconds().toString().padStart(3, "0"),
+  ].join("");
 
-  return params.ms ? withMs : withoutMs;
+  return params.ms ? time + msSuffix : time;
 };
 
 /**
@@ -147,7 +141,7 @@ export const newIsoUtc = (date: Date = new Date()): IsoUtc => ({
   datetimeBasicMs: newIsoDatetimeUtc({
     date,
     basic: true,
-    ms: false,
+    ms: true,
   }) as IsoDatetimeUtcBasicMs,
   datetimeExtended: newIsoDatetimeUtc({
     date,
