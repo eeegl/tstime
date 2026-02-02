@@ -1,6 +1,6 @@
 {
   "name": "@eeegl/tstime",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simple ISO 8601 strings in basic and extended format.",
   "main": "dist/index.js",
   "homepage": "https://github.com/eeegl/tstime", 
